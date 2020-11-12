@@ -14,7 +14,8 @@
 //   };
   
 exports.seed = async function (knex) {
-   await knex('items').insert([
+    await knex('items').truncate()
+    await knex('items').insert([
           { name: 'bowl', description: 'a bowl', price: 1000 },
           { name: 'iPhone', description: 'iPhone 8S', price: 1000 },
           {
