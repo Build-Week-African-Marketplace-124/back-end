@@ -5,9 +5,6 @@ const auth = require('../middleware/authenticate-middleware');
 //Getting all items
 
 router.get('/', async (req, res, next) => {
-  res.status(200).json({
-    message: `So ${FUN}`,
-  })
   try {
     res.json(await db.find());
   } catch (err) {
