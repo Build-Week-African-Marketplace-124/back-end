@@ -21,9 +21,6 @@ server.use('/api/items', itemsRouter);
 server.use('/api/users', auth(), usersRouter);
 
 server.get('/', (req, res) => {
-  // res.status(200).json({
-  //   message: `So ${FUN}`,
-  // })
   res.json({ message: "it's alive!" });
 });
 module.exports = server;
