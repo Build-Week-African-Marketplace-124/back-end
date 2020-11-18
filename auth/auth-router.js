@@ -1,66 +1,72 @@
-const bcryptjs = require('bcryptjs');
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const router = require('express').Router();
-const secrets = require('../secrets')
 
-const Users = require('../models/users-model')
+const auth = require('../middleware/authenticate-middleware');
+const users = require('../models/users-model');
+const router = require('../routes/items-router');
 
+router.post('/register', async (req, res) => {
+  if (!req.body.username || !req.body.password) {
+    res.status(401).json({ message: 'Missing username or missing password' });
+  } else {
+    const username = req.body.username;
 
     const duplicateUser = await users.findBy({ username });
 
     if (duplicateUser.length > 0) {
       res.status(400).json({ message: 'User already exists' });
     } else {
-        res.status(400).json({
-            message: "Please provide username and password, the password should ne alphanumeric"
-        })
+      let user = req.body;
+      const hash = bcrypt.hashSync(user.password, 10);
+      user.password = hash;
 
+      try {
+        await users.add(user);
+        res.status(200).json({ message: 'User created' });
+      } catch (err) {
+        console.log(err);
+        res.status(500).json(err);
+      }
     }
-})
+  }
+});
 
-router.post('/login', (req,res)=>{
-    const {username , password} = req.body
-    if(req.body){
-        Users.findBy({username : username})
-        .then(([user]) =>{
-            if(user && bcryptjs.compareSync(password, user.password)){
-                const token = signToken(user)
-                res.status(200).json({message: 'Welcome to our API', token})
-            }else {
-                res.status(401).json({message: "Invalid credentials"})
-            }
-        })
-        .catch( err =>{
-            res.status(500).json({
-                message: err.message
-            })
-        })
-    }else{
-        res.status(400).json({
-            message: "please provide username and password and the password should be alphanumeric",
-          });
+router.post('/login', async (req, res, next) => {
+  if (!req.body.username || !req.body.password) {
+    res.status(401).json({ message: 'Missing username or missing password' });
+  } else {
+    try {
+      const { username, password } = req.body;
+      const user = await users.findBy({ username });
+      if (user.length === 0) {
+        return res.status(401).json({
+          message: 'invalid credentials',
+        });
+      }
+      const passwordValid = bcrypt.compareSync(password, user[0].password);
+      if (!passwordValid) {
+        return res.status(401).json({
+          message: 'Invalid credentials',
+        });
+      }
+
+      const token = jwt.sign(
+        {
+          userID: user[0].id,
+        },
+        process.env.JWT_SECRET
+      );
+
+      res.cookie('token', token);
+      res.status(200).json({ token, message: `Welcome ${user[0].username}` });
+    } catch (err) {
+      next(err);
     }
-})
+  }
+});
 
+router.get('/logout', async (req, res) => {
+  res.clearCookie('token').end();
+});
 
-
-function signToken(user){
-
-const payload = {
-    subject: user.id,
-    username: user.username,
-    department: account.department
-}
-
-const secret = secrets.jwtSecret
-
-const options = {
-    expiresIn: '1day',
-}
-
-    return jwt.sign(payload, secret, options)
-}
-
-
-
-module.exports = router; 
+module.exports = router;
