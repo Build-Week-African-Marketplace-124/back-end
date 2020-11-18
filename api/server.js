@@ -5,10 +5,10 @@ const cookieParser = require('cookie-parser');
 
 const server = express();
 
-const auth = require('../middleware/authenticate-middleware.js');
-const authRouter = require('../auth/auth-router.js');
-const itemsRouter = require('../routes/items-router.js');
-const usersRouter = require('../routes/users-router.js');
+// const auth = require('../middleware/authenticate-middleware.js');
+const authRouter = require('../auth/auth-router');
+const itemsRouter = require('../routes/items-router');
+const usersRouter = require('../routes/users-router');
 // const server = require('../index.js');
 
 server.use(helmet());
@@ -18,9 +18,12 @@ server.use(cookieParser());
 
 server.use('/api/auth', authRouter);
 server.use('/api/items', itemsRouter);
-server.use('/api/users', auth(), usersRouter);
+server.use('/api/users',  usersRouter);
 
 server.get('/', (req, res) => {
-  res.json({ message: "it's alive!" });
+  // res.status(200).json({
+  //   message: `${process.env.FUN}`
+  // })
+  res.status(200).json({ message: "it's alive!" });
 });
 module.exports = server;

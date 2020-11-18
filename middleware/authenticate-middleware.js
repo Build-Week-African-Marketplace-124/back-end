@@ -7,7 +7,7 @@ function auth() {
     };
 
     try {
-      const token = req.cookies.token || req.body.token;
+      const token = req.cookies.token || req.headers.Authorization
 
       if (!token) {
         return res.status(401).json(authError);
@@ -15,7 +15,7 @@ function auth() {
 
       jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
         if (err) {
-          return res.status(401).json(authErrror);
+          return res.status(401).json(authError);
         }
 
         req.token = decoded;
