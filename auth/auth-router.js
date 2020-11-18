@@ -66,7 +66,11 @@ router.post('/login', async (req, res, next) => {
 });
 
 router.get('/logout', async (req, res) => {
+  try{
   res.clearCookie('token').end();
+  } catch(err) {
+    next(err)
+  }
 });
 
 module.exports = router;
