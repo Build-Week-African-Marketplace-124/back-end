@@ -6,30 +6,10 @@ const secrets = require('../secrets')
 const Users = require('../models/users-model')
 
 
-<<<<<<< HEAD
     const duplicateUser = await users.findBy({ username });
 
     if (duplicateUser.length > 0) {
       res.status(400).json({ message: 'User already exists' });
-=======
-
-router.post('/register', (req,res)=>{
-  console.log("crazy")
-    const credentials = req.body
-    if(credentials){
-        const rounds = process.env.BCRYPT_ROUNDS || 12;
-
-        const hash = bcryptjs.hashSync(credentials.password, rounds)
-        credentials.password = hash
-
-        Users.add(credentials)
-        .then( user => {
-            res.status(201).json({ data: user})
-        })
-        .catch(err => {
-            res.status(500).json({message: err.message})
-        } )
->>>>>>> 6740ab0e3bb111424f719481d0083efe8ec14032
     } else {
         res.status(400).json({
             message: "Please provide username and password, the password should ne alphanumeric"
