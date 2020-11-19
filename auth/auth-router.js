@@ -5,13 +5,13 @@ const auth = require('../middleware/authenticate-middleware');
 const users = require('../models/users-model');
 const router = require('../routes/items-router');
 
-router.post('/register', async (req, res) => {
+router.post('/register', (req, res) => {
   if (!req.body.username || !req.body.password) {
     res.status(401).json({ message: 'Missing username or missing password' });
   } else {
     const username = req.body.username;
 
-    const duplicateUser = await users.findBy({ username });
+    const duplicateUser = users.findBy({ username });
 
     if (duplicateUser.length > 0) {
       res.status(400).json({ message: 'User already exists' });
@@ -21,7 +21,7 @@ router.post('/register', async (req, res) => {
       user.password = hash;
 
       try {
-        await users.add(user);
+        users.add(user);
         res.status(200).json({ message: 'User created' });
       } catch (err) {
         console.log(err);
