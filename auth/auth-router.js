@@ -50,18 +50,32 @@ router.post('/login', (req, res, next) => {
         });
       }
 
-      const token = jwt.sign(
-        {
-          userID: user[0].id,
-        },
-        process.env.JWT_SECRET
-      );
-
-      res.cookie('token', token);
-      res.status(200).json({ token, message: `Welcome ${user[0].username}` });
-    } catch (err) {
-      next(err);
+      const token = jwt.sign({
+        userID: user.id,
+        // userRole: user.role,
+      }, process.env.JWT_SECRET)
+  
+      // this is how we set a cookie manually
+      // cookies get set up with every request to persist login auth
+      res.cookie("token", token)
+      res.json({
+        message: `Welcome ${user.username}!`,
+      })
+    } catch(err) {
+      next(err)
     }
+    //   const token = jwt.sign(
+    //     {
+    //       userID: user[0].id,
+    //     },
+    //     process.env.JWT_SECRET
+    //   );
+
+    //   res.cookie('token', token);
+    //   res.status(200).json({ token, message: `Welcome ${user[0].username}` });
+    // } catch (err) {
+    //   next(err);
+    // }
   }
 });
 
