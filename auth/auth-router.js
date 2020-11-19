@@ -31,13 +31,13 @@ router.post('/register', (req, res) => {
   }
 });
 
-router.post('/login', async (req, res, next) => {
+router.post('/login', (req, res, next) => {
   if (!req.body.username || !req.body.password) {
     res.status(401).json({ message: 'Missing username or missing password' });
   } else {
     try {
       const { username, password } = req.body;
-      const user = await users.findBy({ username });
+      const user = users.findBy({ username });
       if (user.length === 0) {
         return res.status(401).json({
           message: 'invalid credentials',
@@ -65,7 +65,7 @@ router.post('/login', async (req, res, next) => {
   }
 });
 
-router.get('/logout', async (req, res) => {
+router.get('/logout', (req, res) => {
   try{
   res.clearCookie('token').end();
   } catch(err) {
