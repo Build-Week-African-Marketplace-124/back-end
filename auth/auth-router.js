@@ -20,50 +20,72 @@ router.post('/register', (req, res) => {
       const hash = bcrypt.hashSync(user.password, 10);
       user.password = hash;
 
-      try {
-        users.add(user);
-        res.status(200).json({ message: 'User created' });
-      } catch (err) {
-        console.log(err);
-        res.status(500).json(err);
-      }
+
+      
+      // try {
+        users.add(user).then((newUser) => {
+        const token = generateToken(newUser);
+        res.status(200).json({ message: 'User created' ,token});}).catch(err => {res.status(500).json(error);})
+      // } catch (err) {
+      //   console.log(err);
+      //   res.status(500).json(err);
+      // }
     }
   }
 });
 
-router.post('/login', (req, res, next) => {
+router.post('/login', (req, res) => {
   if (!req.body.username || !req.body.password) {
     res.status(401).json({ message: 'Missing username or missing password' });
   } else {
-    try {
-      const { username, password } = req.body;
-      const user = users.findBy({ username });
-      if (user.length === 0) {
+    // try {
+      let { username, password } = req.body;
+      // const user = users.findBy({ username });
+      
+      users.findBy({ username }).first().then((username) => {
+        if (username && bcrypt.compareSync(password, username.password)) {
+          // generate token
+          const token = generateToken(username);
+          delete username.password;
+          res.status(200).json({
+            username,
+            token, //return the token upon login
+          });
+        } else {
+          res.status(401).json({ message: "Invalid Username or Password" });
+        }
+      })
+      .catch((error) => {
+        res.status(500).json(error);
+      });
+      if (username.length === 0) {
         return res.status(401).json({
           message: 'invalid credentials',
         });
       }
-      const passwordValid = bcrypt.compareSync(password, user[0].password);
-      if (!passwordValid) {
-        return res.status(401).json({
-          message: 'Invalid credentials',
-        });
-      }
+      // const passwordValid = bcrypt.compareSync(password, user[0].password);
+      // if (!passwordValid) {
+      //   return res.status(401).json({
+      //     message: 'Invalid credentials',
+      //   });
+      // }
 
-      const token = jwt.sign({
-        userID: user.id,
-        // userRole: user.role,
-      }, process.env.JWT_SECRET)
+      
+
+    //   const token = jwt.sign({
+    //     userID: user.id,
+    //     // userRole: user.role,
+    //   }, process.env.JWT_SECRET)
   
-      // this is how we set a cookie manually
-      // cookies get set up with every request to persist login auth
-      res.cookie("token", token)
-      res.json({
-        message: `Welcome ${user.username}!`,
-      })
-    } catch(err) {
-      next(err)
-    }
+    //   // this is how we set a cookie manually
+    //   // cookies get set up with every request to persist login auth
+    //   res.cookie("token", token)
+    //   res.json({
+    //     message: `Welcome ${user.username}!`,
+      // })
+    // } catch(err) {
+    //   next(err)
+    // }
     //   const token = jwt.sign(
     //     {
     //       userID: user[0].id,
@@ -86,5 +108,18 @@ router.get('/logout', (req, res) => {
     next(err)
   }
 });
+
+
+function generateToken(user) {
+  const payload = {
+    subject: user.id, // standard claim = sub
+    username: user.email,
+  };
+  const options = {
+    expiresIn: "7d",
+  };
+  return jwt.sign(payload, process.env.JWT_SECRET, options);
+}
+
 
 module.exports = router;
