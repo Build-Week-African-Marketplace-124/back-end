@@ -32,10 +32,9 @@ router.get('/:id', async (req, res, next) => {
 //Creating a new item
 
 router.post('/', auth(), async (req, res, next) => {
-  const { item } = req.body;
+  const item = req.body;
   try {
     const id = await db.add(item);
-    console.log(id)
     const newItem = await db.findById(id);
 
     return res.status(201).json(newItem);
@@ -49,7 +48,7 @@ router.post('/', auth(), async (req, res, next) => {
 router.put('/:id', auth(), async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { item } = req.body;
+    const item = req.body;
     const itemToUpdate = await db.update(id, item);
 
     if (itemToUpdate) {
@@ -69,9 +68,10 @@ router.put('/:id', auth(), async (req, res, next) => {
 router.delete('/:id', auth(), async (req, res, next) => {
   try {
     const { id } = req.params;
+    const name = req.params.name;
     const item = await db.remove(id).where({ id: req.params.id }).del();
 
-    return res.status(200).json({ id: req.params.id });
+    return res.status(200).json({ message: "Item #" + `${id}` + " has been deleted" });
   } catch (err) {
     next(err);
   }
