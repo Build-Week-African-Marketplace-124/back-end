@@ -2,29 +2,33 @@ const db = require('../models/users-model.js');
 const router = require('express').Router();
 const auth = require('../middleware/authenticate-middleware.js');
 const restricted = require('../auth/restricted-middleware')
+const Users = require('../models/users-model')
 
-router.get('/', restricted ,(req,res)=>{
-  db.findBy({department: req.jwt.department})
-  .then(users => {
-      res.status(200).json({data: users})
-  })
-})
+// router.get('/', restricted ,(req,res)=>{
+//   db.findBy({department: req.jwt.department})
+//   .then(users => {
+//       res.status(200).json({data: users})
+//   })
+// })
 
 //Getting all users
 
-router.get('/', async (req, res, next) => {
-  try {
-    res.json(await db.find());
-  } catch (err) {
-    next(err);
-  }
+router.get("/", restricted, async (req, res) => {
+  Users.getAllUsers()
+    .then((users) => {
+      res.status(200).json(users);
+    })
+    .catch((err) => {
+      res.status(500).json(err);
+    });
 });
+
 
 //Getting a specific user
 
 router.get('/:id', async (req, res, next) => {
   try {
-    const user = await db.findById(req.params.id);
+    const user = await db.getUserById(req.params.id);
     if (!user) {
       return res.status(404).json({
         message: 'User not found.',
@@ -41,23 +45,78 @@ router.get('/:id', async (req, res, next) => {
 
 // //Updating a user
 
-router.put('/:id', auth(), async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const { user } = req.body;
-    const userToUpdate = await db.update(id, user);
+// router.put('/:id', auth(), async (req, res, next) => {
+//   try {
+//     const { id } = req.params;
+//     const { user } = req.body;
+//     const userToUpdate = await db.editUser(id, user);
 
-    if (userToUpdate) {
-      res.json(user);
-    } else {
-      return res.status(404).json({
-        message: 'User not found.',
+//     if (userToUpdate) {
+//       res.json(user);
+//     } else {
+//       return res.status(404).json({
+//         message: 'User not found.',
+//       });
+//     }
+//   } catch (err) {
+//     next(err);
+//   }
+// });
+
+router.put(
+  "/:id",
+  restricted,
+  verifyUserId,
+  validateEditContent,
+
+  (req, res) => {
+    const id = req.params.id;
+    const edit = req.body;
+
+    Users.editUser(id, edit)
+      .then((editedProfile) => {
+        delete editedProfile.password;
+        res.status(201).json({ editedProfile });
+      })
+      .catch((err) => {
+        res.status(500).json({ err });
       });
-    }
-  } catch (err) {
-    next(err);
   }
-});
+);
+
+function validateEditContent(req, res, next) {
+  if (
+    req.body.email === "" ||
+    req.body.email === null ||
+    req.body.password === "" ||
+    req.body.password === null ||
+    req.body.username === "" ||
+    req.body.username === null
+  ) {
+    res.status(400).json({
+      message: "Email, password, and username fields cannot be empty.",
+    });
+  } else {
+    next();
+  }
+}
+
+function verifyUserId(req, res, next) {
+  const id = req.params.id;
+
+  Users.getUserById(id)
+    .then((item) => {
+      if (item) {
+        req.item = item;
+        next();
+      } else {
+        res.status(404).json({ message: "User Not Found." });
+      }
+    })
+    .catch((err) => {
+      res.status(500).json(err);
+    });
+}
 
 // Logging out a user
 
@@ -83,7 +142,7 @@ router.get("/logout", async (req, res, next) => {
 router.delete('/:id', auth(), async (req, res, next) => {
   try {
     const { id } = req.params;
-    const user = await db.remove(id).where({ id: req.params.id }).del();
+    const user = await db.deleteUser(id).where({ id: req.params.id }).del();
 
     return res.status(200).json({ id: req.params.id });
   } catch (err) {

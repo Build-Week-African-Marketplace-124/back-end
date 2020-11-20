@@ -4,8 +4,9 @@ exports.up = async function (knex) {
     
             users.string('username', 255).notNullable().unique();
             users.string('password', 255).notNullable();
-            users.string('location', 255);
-            users.string('image', 255);
+            // users.string('location', 255);
+            // users.string('image', 255);
+            // users.string('role', 255).notNullable();
           })
     
     await knex.schema.createTable('items', items => {

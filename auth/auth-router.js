@@ -23,7 +23,7 @@ router.post('/register', (req, res) => {
 
       
       // try {
-        users.add(user).then((newUser) => {
+        users.addNewUser(user).then((newUser) => {
         const token = generateToken(newUser);
         res.status(200).json({ message: 'User created' ,token});}).catch(err => {res.status(500).json(error);})
       // } catch (err) {
