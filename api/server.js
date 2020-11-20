@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
-const cookieParser = require('cookie-parser');
 
 const server = express();
 
@@ -14,7 +13,6 @@ const usersRouter = require('../routes/users-router');
 server.use(helmet());
 server.use(cors());
 server.use(express.json());
-server.use(cookieParser());
 
 server.use('/api/auth', authRouter);
 server.use('/api/items', itemsRouter);
