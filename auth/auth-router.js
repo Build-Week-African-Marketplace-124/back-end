@@ -5,34 +5,34 @@ const auth = require('../middleware/authenticate-middleware');
 const users = require('../models/users-model');
 const router = require('../routes/items-router');
 
-// router.post('/register', (req, res) => {
-//   if (!req.body.username || !req.body.password) {
-//     res.status(401).json({ message: 'Missing username or missing password' });
-//   } else {
-//     const username = req.body.username;
+router.post('/register', auth(), (req, res) => {
+  if (!req.body.username || !req.body.password) {
+    res.status(401).json({ message: 'Missing username or missing password' });
+  } else {
+    const username = req.body.username;
 
-//     const duplicateUser = users.findBy({ username });
+    const duplicateUser = users.findBy({ username });
 
-//     if (duplicateUser.length > 0) {
-//       res.status(400).json({ message: 'User already exists' });
-//     } else {
-//       let user = req.body;
-//       const hash = bcrypt.hashSync(user.password, 10);
-//       user.password = hash;
+    if (duplicateUser.length > 0) {
+      res.status(400).json({ message: 'User already exists' });
+    } else {
+      let user = req.body;
+      const hash = bcrypt.hashSync(user.password, 10);
+      user.password = hash;
 
 
       
-//       // try {
-//         users.addNewUser(user).then((newUser) => {
-//         const token = generateToken(newUser);
-//         res.status(200).json({ message: 'User created' ,token});}).catch(err => {res.status(500).json(error);})
-//       // } catch (err) {
-//       //   console.log(err);
-//       //   res.status(500).json(err);
-//       // }
-//     }
-//   }
-// });
+      // try {
+        users.addNewUser(user).then((newUser) => {
+        const token = generateToken(newUser);
+        res.status(200).json({ message: 'User created' ,token});}).catch(err => {res.status(500).json(error);})
+      // } catch (err) {
+      //   console.log(err);
+      //   res.status(500).json(err);
+      // }
+    }
+  }
+});
 
 router.post("/register", (req, res) => {
   let user = req.body;
