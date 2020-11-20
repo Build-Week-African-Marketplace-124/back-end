@@ -117,7 +117,7 @@ router.get("/logout", async (req, res, next) => {
 
 // //Deleting a user account
 
-router.delete('/:id', auth(), async (req, res, next) => {
+router.delete('/:id', async (req, res, next) => {
   try {
     const { id } = req.params;
     const user = await db.deleteUser(id).where({ id: req.params.id }).del();
