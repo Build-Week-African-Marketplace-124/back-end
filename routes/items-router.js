@@ -52,7 +52,7 @@ router.put('/:id', auth(), async (req, res, next) => {
     const itemToUpdate = await db.update(id, item);
 
     if (itemToUpdate) {
-      res.json(item);
+      res.status(200).json(message: "Item " + `${id}` + "was updated");
     } else {
       return res.status(404).json({
         message: 'Item not found.',
