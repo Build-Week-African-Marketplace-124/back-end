@@ -7,7 +7,7 @@ function auth() {
     };
 
     try {
-      const token = req.cookies.token || req.headers.Authorization
+      const token =  req.headers.authorization
 
       if (!token) {
         return res.status(401).json(authError);

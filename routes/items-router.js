@@ -35,6 +35,7 @@ router.post('/', auth(), async (req, res, next) => {
   const { item } = req.body;
   try {
     const id = await db.add(item);
+    console.log(id)
     const newItem = await db.findById(id);
 
     return res.status(201).json(newItem);
