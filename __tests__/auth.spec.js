@@ -13,7 +13,7 @@ afterAll(async () => {
 
 describe('integration tests', () => {
   it('POST /api/auth/register - register a user', async () => {
-    const user = { username: 'josh', password: 'password' };
+    const user = { username: 'steve', password: 'password' };
     const res = await supertest(server).post('/api/auth/register').send(user);
     expect(res.statusCode).toBe(200);
     expect(res.type).toBe('application/json');
@@ -21,25 +21,25 @@ describe('integration tests', () => {
   });
 
   it('POST /api/auth/login - log a user in', async () => {
-    const user = { username: 'josh', password: 'password' };
+    const user = { username: 'steve', password: 'password' };
     await supertest(server).post('/api/auth/register').send(user);
 
     const res = await supertest(server).post('/api/auth/login').send(user);
     expect(res.statusCode).toBe(200);
     expect(res.type).toBe('application/json');
-    expect(res.body.message).toBe('Welcome josh');
+    expect(res.body.message).toBe('Welcome steve');
   });
 
   it("POST /api/auth/login - can't login with bad password", async () => {
-    const user = { username: 'josh', password: 'badpassword' };
+    const user = { username: 'steve', password: 'badpassword' };
     const res = await supertest(server).post('/api/auth/login').send(user);
     expect(res.statusCode).toBe(401);
     expect(res.type).toBe('application/json');
   });
 
   it("POST /api/auth/register - can't register with duplicate username", async () => {
-    const user = { username: 'josh', password: 'badpassword' };
-    const duplicateUser = { username: 'josh', password: 'duplicateuser' };
+    const user = { username: 'steve', password: 'badpassword' };
+    const duplicateUser = { username: 'steve', password: 'duplicateuser' };
 
     await supertest(server).post('/api/auth/register').send(user);
     const res = await supertest(server)

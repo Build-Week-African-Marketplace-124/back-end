@@ -6,11 +6,11 @@ let token;
 
 const login = async () => {
   await supertest(server).post('/api/auth/register').send({
-    username: 'ben',
+    username: 'steve',
     password: 'password',
   });
   const response = await supertest(server).post('/api/auth/login').send({
-    username: 'ben',
+    username: 'steve',
     password: 'password',
   });
   token = response.body.token;
@@ -31,7 +31,7 @@ describe('integration tests', () => {
     const res = await supertest(server).get('/api/users').send({ token });
     expect(res.statusCode).toBe(200);
     expect(res.type).toBe('application/json');
-    expect(res.body[0].username).toBe('ben99');
+    expect(res.body[0].username).toBe('steve99');
   });
 
   it("GET /api/users - can't see users if not logged in", async () => {

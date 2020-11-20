@@ -7,11 +7,11 @@ let token;
 
 const login = async () => {
   await supertest(server).post('/api/auth/register').send({
-    username: 'ben',
+    username: 'steve',
     password: 'password',
   });
   const response = await supertest(server).post('/api/auth/login').send({
-    username: 'ben',
+    username: 'steve',
     password: 'password',
   });
   token = response.body.token;

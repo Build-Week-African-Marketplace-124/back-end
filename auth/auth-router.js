@@ -1,11 +1,10 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-const auth = require('../middleware/authenticate-middleware');
 const users = require('../models/users-model');
 const router = require('../routes/items-router');
 
-router.post('/register', auth(), (req, res) => {
+router.post('/register', (req, res) => {
   if (!req.body.username || !req.body.password) {
     res.status(401).json({ message: 'Missing username or missing password' });
   } else {
@@ -19,45 +18,20 @@ router.post('/register', auth(), (req, res) => {
       let user = req.body;
       const hash = bcrypt.hashSync(user.password, 10);
       user.password = hash;
-
-
-      
-      // try {
-        users.addNewUser(user).then((newUser) => {
-        const token = generateToken(newUser);
-        res.status(200).json({ message: 'User created' ,token});}).catch(err => {res.status(500).json(error);})
-      // } catch (err) {
-      //   console.log(err);
-      //   res.status(500).json(err);
-      // }
+      users.addNewUser(user).then((newUser) => {
+      const token = generateToken(newUser);
+      res.status(200).json({ message: 'User created' ,token});})
+          .catch(err => {res.status(500)
+          .json(error);})
     }
   }
-});
-
-router.post("/register", (req, res) => {
-  let user = req.body;
-
-  const hash = bcrypt.hashSync(user.password, 10); // 2 ^ n
-  user.password = hash;
-
-  users.addNewUser(user)
-    .then((newUser) => {
-      const token = generateToken(newUser);
-      delete newUser.password;
-      res.status(201).json({ newUser, token });
-    })
-    .catch((error) => {
-      res.status(500).json(error);
-    });
 });
 
 router.post('/login', (req, res) => {
   if (!req.body.username || !req.body.password) {
     res.status(401).json({ message: 'Missing username or missing password' });
   } else {
-    // try {
       let { username, password } = req.body;
-      // const user = users.findBy({ username });
       
       users.findBy({ username }).first().then((username) => {
         if (username && bcrypt.compareSync(password, username.password)) {
@@ -80,41 +54,6 @@ router.post('/login', (req, res) => {
           message: 'invalid credentials',
         });
       }
-      // const passwordValid = bcrypt.compareSync(password, user[0].password);
-      // if (!passwordValid) {
-      //   return res.status(401).json({
-      //     message: 'Invalid credentials',
-      //   });
-      // }
-
-      
-
-    //   const token = jwt.sign({
-    //     userID: user.id,
-    //     // userRole: user.role,
-    //   }, process.env.JWT_SECRET)
-  
-    //   // this is how we set a cookie manually
-    //   // cookies get set up with every request to persist login auth
-    //   res.cookie("token", token)
-    //   res.json({
-    //     message: `Welcome ${user.username}!`,
-      // })
-    // } catch(err) {
-    //   next(err)
-    // }
-    //   const token = jwt.sign(
-    //     {
-    //       userID: user[0].id,
-    //     },
-    //     process.env.JWT_SECRET
-    //   );
-
-    //   res.cookie('token', token);
-    //   res.status(200).json({ token, message: `Welcome ${user[0].username}` });
-    // } catch (err) {
-    //   next(err);
-    // }
   }
 });
 
