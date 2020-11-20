@@ -41,27 +41,7 @@ router.get('/:id', async (req, res, next) => {
   }
 });
 
-
-
-// //Updating a user
-
-// router.put('/:id', auth(), async (req, res, next) => {
-//   try {
-//     const { id } = req.params;
-//     const { user } = req.body;
-//     const userToUpdate = await db.editUser(id, user);
-
-//     if (userToUpdate) {
-//       res.json(user);
-//     } else {
-//       return res.status(404).json({
-//         message: 'User not found.',
-//       });
-//     }
-//   } catch (err) {
-//     next(err);
-//   }
-// });
+//Updating a user
 
 router.put(
   "/:id",
@@ -86,8 +66,6 @@ router.put(
 
 function validateEditContent(req, res, next) {
   if (
-    req.body.email === "" ||
-    req.body.email === null ||
     req.body.password === "" ||
     req.body.password === null ||
     req.body.username === "" ||
@@ -105,9 +83,9 @@ function verifyUserId(req, res, next) {
   const id = req.params.id;
 
   Users.getUserById(id)
-    .then((item) => {
-      if (item) {
-        req.item = item;
+    .then((user) => {
+      if (user) {
+        req.user = user;
         next();
       } else {
         res.status(404).json({ message: "User Not Found." });
